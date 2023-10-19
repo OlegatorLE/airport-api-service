@@ -63,7 +63,7 @@ class FlightViewSet(viewsets.ModelViewSet):
                     tickets_available=F(
                         "airplane__rows") * F(
                         "airplane__seats_in_row") - Count(
-                        "ticket")
+                        "tickets")
                 )
             ).order_by("id")
         return queryset
@@ -73,7 +73,7 @@ class FlightViewSet(viewsets.ModelViewSet):
             return FlightListSerializer
         if self.action == "retrieve":
             return FlightDetailSerializer
-        return FlightSerializer
+        return self.serializer_class
 
 
 class OrderViewSet(viewsets.ModelViewSet):

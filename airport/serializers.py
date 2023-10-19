@@ -38,7 +38,20 @@ class AirplaneSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Airplane
-        fields = ('id', 'name', 'rows', 'seats_in_row', 'airplane_type')
+        fields = (
+            "id",
+            "name",
+            "airplane_type",
+            "rows",
+            "seats_in_row",
+            "capacity"
+        )
+
+
+class AirplaneCapacitySerializer(AirplaneSerializer):
+    class Meta:
+        model = Airplane
+        fields = ("capacity",)
 
 
 class CrewSerializer(serializers.ModelSerializer):
@@ -55,31 +68,50 @@ class FlightSerializer(serializers.ModelSerializer):
 
 class FlightListSerializer(FlightSerializer):
     route = serializers.SlugRelatedField(
-        slug_field="get_route",
+        slug_field="route",
         queryset=Route.objects.all()
     )
     airplane = serializers.SlugRelatedField(
         slug_field='name',
         queryset=Airplane.objects.all()
     )
-    crew = CrewSerializer(many=True)
     tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Flight
         fields = (
-            'id',
-            'route',
-            'airplane',
-            'departure_time',
-            'arrival_time',
-            'crew',
+            "id",
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
             "tickets_available"
         )
 
 
-class FlightDetailSerializer(serializers.ModelSerializer):
-    pass
+class FlightDetailSerializer(FlightSerializer):
+    airplane = AirplaneSerializer(read_only=True)
+    taken_seats = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Flight
+        fields = (
+            "id",
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+            "taken_seats"
+        )
+
+    def get_taken_seats(self, obj) -> list:
+        return [
+            (
+                f"Row {ticket.row},"
+                f" Seat {ticket.seat}"
+            )
+            for ticket in obj.tickets.all()
+        ]
 
 
 class OrderSerializer(serializers.ModelSerializer):
