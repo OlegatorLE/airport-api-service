@@ -25,7 +25,7 @@ class Route(models.Model):
     distance = models.IntegerField()
 
     @property
-    def get_route(self) -> str:
+    def route(self) -> str:
         return f"{self.source} - {self.destination}"
 
     def __str__(self) -> str:
@@ -92,8 +92,12 @@ class Order(models.Model):
 class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
-    flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    flight = models.ForeignKey(
+        Flight, on_delete=models.CASCADE, related_name="tickets"
+    )
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name="tickets"
+    )
 
     def __str__(self) -> str:
         return f"{self.flight} (row:{self.row}, seat:{self.seat}"
