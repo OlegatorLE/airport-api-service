@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "airport",
+    "user",
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "airport_api_service.urls"
+
+AUTH_USER_MODEL = "user.User"
 
 TEMPLATES = [
     {
