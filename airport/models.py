@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 
 class Airport(models.Model):
@@ -13,14 +13,10 @@ class Airport(models.Model):
 
 class Route(models.Model):
     source = models.ForeignKey(
-        Airport,
-        related_name='departure_routes',
-        on_delete=models.CASCADE
+        Airport, related_name="departure_routes", on_delete=models.CASCADE
     )
     destination = models.ForeignKey(
-        Airport,
-        related_name='arrival_routes',
-        on_delete=models.CASCADE
+        Airport, related_name="arrival_routes", on_delete=models.CASCADE
     )
     distance = models.IntegerField()
 
