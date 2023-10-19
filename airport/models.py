@@ -24,6 +24,10 @@ class Route(models.Model):
     )
     distance = models.IntegerField()
 
+    @property
+    def get_route(self) -> str:
+        return f"{self.source} - {self.destination}"
+
     def __str__(self) -> str:
         return f"{self.source} - {self.destination}. {self.distance}km."
 
