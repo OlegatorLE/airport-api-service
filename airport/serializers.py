@@ -48,6 +48,12 @@ class CrewSerializer(serializers.ModelSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = ("id", "route", "airplane", "departure_time", "arrival_time")
+
+
+class FlightListSerializer(FlightSerializer):
     route = serializers.SlugRelatedField(
         slug_field="get_route",
         queryset=Route.objects.all()
@@ -57,6 +63,7 @@ class FlightSerializer(serializers.ModelSerializer):
         queryset=Airplane.objects.all()
     )
     crew = CrewSerializer(many=True)
+    tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Flight
@@ -66,8 +73,13 @@ class FlightSerializer(serializers.ModelSerializer):
             'airplane',
             'departure_time',
             'arrival_time',
-            'crew'
+            'crew',
+            "tickets_available"
         )
+
+
+class FlightDetailSerializer(serializers.ModelSerializer):
+    pass
 
 
 class OrderSerializer(serializers.ModelSerializer):
