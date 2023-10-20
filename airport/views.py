@@ -1,4 +1,6 @@
 from django.db.models import F, Count
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -33,13 +35,43 @@ class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset
+
+        name = self.request.query_params.get("name")
+        closest_big_city = self.request.query_params.get("closest_big_city")
+
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+        if closest_big_city:
+            queryset = queryset.filter(
+                closest_big_city__icontains=closest_big_city
+            )
+
+        return queryset.distinct()
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "name",
+                type=OpenApiTypes.STR,
+                description="Filter by airport name (ex. ?name=Heathrow)",
+            ),
+            OpenApiParameter(
+                "closest_big_city",
+                type=OpenApiTypes.STR,
+                description=(
+                    "Filter by closest big city (ex. ?closest_big_city=Kyiv)"
+                ),
+            ),
+        ]
+    )
     def get_serializer_class(self):
         if self.action == "list":
             return AirportListSerializer
         if self.action == "retrieve":
             return AirportDetailSerializer
         return self.serializer_class
-
 
 
 class RouteViewSet(viewsets.ModelViewSet):
@@ -160,24 +192,53 @@ class CustomAPIRootView(APIView):
                             "user:manage", request=request, format=format
                         ),
                     },
+                    "Documentation": {
+                        "schema": reverse(
+                            "schema", request=request, format=format
+                        ),
+                        "swagger": reverse(
+                            "swagger-ui", request=request, format=format
+                        ),
+                        "redoc": reverse(
+                            "redoc", request=request, format=format
+                        ),
+                    },
                 }
             )
         else:
             return Response(
                 {
-                    "user_register": reverse(
-                        "user:create", request=request, format=format
-                    ),
-                    "token_obtain_pair": reverse(
-                        "user:token_obtain_pair",
-                        request=request,
-                        format=format,
-                    ),
-                    "token_refresh": reverse(
-                        "user:token_refresh", request=request, format=format
-                    ),
-                    "token_verify": reverse(
-                        "user:token_verify", request=request, format=format
-                    ),
+                    "User-API": {
+                        "user_register": reverse(
+                            "user:create", request=request, format=format
+                        ),
+                        "token_obtain_pair": reverse(
+                            "user:token_obtain_pair",
+                            request=request,
+                            format=format,
+                        ),
+                        "token_refresh": reverse(
+                            "user:token_refresh",
+                            request=request,
+                            format=format,
+                        ),
+                        "token_verify": reverse(
+                            "user:token_verify", request=request, format=format
+                        ),
+                        "manage_user": reverse(
+                            "user:manage", request=request, format=format
+                        ),
+                    },
+                    "Documentation": {
+                        "schema": reverse(
+                            "schema", request=request, format=format
+                        ),
+                        "swagger": reverse(
+                            "swagger-ui", request=request, format=format
+                        ),
+                        "redoc": reverse(
+                            "redoc", request=request, format=format
+                        ),
+                    },
                 }
             )
