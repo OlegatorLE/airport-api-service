@@ -95,6 +95,7 @@ class CustomAPIRootView(APIView):
     def get(self, request, format=None):
         if request.user.is_authenticated:
             return Response({
+                "Airport-API": {
                 "airports": reverse(
                     "airport:airport-list", request=request, format=format
                 ),
@@ -120,7 +121,8 @@ class CustomAPIRootView(APIView):
                 ),
                 "tickets": reverse(
                     "airport:ticket-list", request=request, format=format
-                ),
+                ),},
+                "User-API": {
                 "user_register": reverse(
                     "user:create", request=request, format=format
                 ),
@@ -136,6 +138,7 @@ class CustomAPIRootView(APIView):
                 "manage_user": reverse(
                     "user:manage", request=request, format=format
                 ),
+                }
             })
         else:
             return Response({
