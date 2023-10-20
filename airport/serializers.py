@@ -160,9 +160,7 @@ class FlightCreateSerializer(serializers.ModelSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    flight = serializers.SlugRelatedField(
-        slug_field="id", queryset=Flight.objects.all()
-    )
+    flight = serializers.SerializerMethodField()
 
     def validate(self, attrs):
         data = super(TicketSerializer, self).validate(attrs)
@@ -174,6 +172,9 @@ class TicketSerializer(serializers.ModelSerializer):
             serializers.ValidationError,
         )
         return data
+
+    def get_flight(self, obj):
+        return str(obj.flight.route)
 
     class Meta:
         model = Ticket
@@ -193,3 +194,14 @@ class OrderSerializer(serializers.ModelSerializer):
         for ticket_data in tickets_data:
             Ticket.objects.create(order=order, **ticket_data)
         return order
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        created_at_representation = timezone.localtime(
+            instance.created_at
+        ).strftime("%d-%m-%Y %H:%M")
+        representation["created_at"] = created_at_representation
+
+        return representation
+
