@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import (
     Airport,
     Route,
@@ -111,17 +112,24 @@ class FlightDetailSerializer(FlightSerializer):
 
     def get_taken_seats(self, obj) -> list:
         return [
-            (f"Row {ticket.row}," f" Seat {ticket.seat}")
+            f"Row {ticket.row}, Seat {ticket.seat}"
             for ticket in obj.tickets.all()
         ]
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(slug_field="username", read_only=True)
+    user = serializers.SlugRelatedField(slug_field="email", read_only=True)
+    tickets = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ("id", "created_at", "user")
+        fields = ("id", "tickets", "created_at", "user")
+
+    def get_tickets(self, obj) -> list:
+        return [
+            f"Row {ticket.row}, Seat {ticket.seat}"
+            for ticket in obj.tickets.all()
+        ]
 
 
 class TicketSerializer(serializers.ModelSerializer):
