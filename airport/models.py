@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 class Airport(models.Model):
     name = models.CharField(max_length=255)
     closest_big_city = models.CharField(max_length=255)
+    country = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.name} ({self.closest_big_city})"
