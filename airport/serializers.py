@@ -12,12 +12,6 @@ from .models import (
 )
 
 
-class AirportSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Airport
-        fields = "__all__"
-
-
 class RouteSerializer(serializers.ModelSerializer):
     source = serializers.SlugRelatedField(
         slug_field="name",
@@ -31,6 +25,25 @@ class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = ("id", "source", "destination", "distance")
+
+
+class AirportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Airport
+        fields = "__all__"
+
+
+class AirportListSerializer(AirportSerializer):
+    pass
+
+
+class AirportDetailSerializer(AirportSerializer):
+    departure_routes = RouteSerializer(many=True, read_only=True)
+    arrival_routes = RouteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Airport
+        fields = ["id", "name", "closest_big_city", "departure_routes", "arrival_routes"]
 
 
 class AirplaneTypeSerializer(serializers.ModelSerializer):
@@ -129,7 +142,7 @@ class TicketSerializer(serializers.ModelSerializer):
             attrs["flight"].airplane.rows,
             attrs["seat"],
             attrs["flight"].airplane.seats_in_row,
-            serializers.ValidationError
+            serializers.ValidationError,
         )
         return data
 
