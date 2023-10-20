@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from .models import (
@@ -96,6 +97,27 @@ class FlightListSerializer(FlightSerializer):
     )
     tickets_available = serializers.IntegerField(read_only=True)
 
+    crew = serializers.PrimaryKeyRelatedField(
+        queryset=Crew.objects.all(), many=True, required=False
+    )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        crew_representation = [crew.full_name for crew in instance.crew.all()]
+        representation["crew"] = crew_representation
+
+        departure_time_representation = timezone.localtime(
+            instance.departure_time
+        ).strftime("%d-%m-%Y %H:%M")
+        arrival_time_representation = timezone.localtime(
+            instance.arrival_time
+        ).strftime("%d-%m-%Y %H:%M")
+        representation["departure_time"] = departure_time_representation
+        representation["arrival_time"] = arrival_time_representation
+
+        return representation
+
     class Meta:
         model = Flight
         fields = (
@@ -105,6 +127,7 @@ class FlightListSerializer(FlightSerializer):
             "departure_time",
             "arrival_time",
             "tickets_available",
+            "crew",
         )
 
 
@@ -128,6 +151,12 @@ class FlightDetailSerializer(FlightSerializer):
             f"Row {ticket.row}, Seat {ticket.seat}"
             for ticket in obj.tickets.all()
         ]
+
+
+class FlightCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = ["id", "route", "airplane", "departure_time", "arrival_time", "crew"]
 
 
 class TicketSerializer(serializers.ModelSerializer):
