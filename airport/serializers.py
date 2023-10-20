@@ -14,18 +14,28 @@ from .models import (
 
 
 class RouteSerializer(serializers.ModelSerializer):
-    source = serializers.CharField(source="source.name")
-    destination = serializers.CharField(source="destination.name")
+    source = serializers.PrimaryKeyRelatedField(
+        queryset=Airport.objects.all().order_by("name")
+    )
+    destination = serializers.PrimaryKeyRelatedField(
+        queryset=Airport.objects.all().order_by("name")
+    )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["source"] = instance.source.name
+        representation["destination"] = instance.destination.name
+        representation["distance"] = f"{instance.distance} km."
+        return representation
 
     class Meta:
         model = Route
         fields = ("id", "source", "destination", "distance")
 
-
 class AirportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Airport
-        fields = "__all__"
+        fields = ("id", "name", "closest_big_city", "country")
 
 
 class AirportListSerializer(AirportSerializer):
@@ -54,7 +64,14 @@ class AirplaneTypeSerializer(serializers.ModelSerializer):
 
 
 class AirplaneSerializer(serializers.ModelSerializer):
-    airplane_type = serializers.CharField(source="airplane_type.name")
+    airplane_type = serializers.PrimaryKeyRelatedField(
+        queryset=AirplaneType.objects.all()
+    )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["airplane_type"] = instance.airplane_type.name
+        return representation
 
     class Meta:
         model = Airplane
@@ -143,14 +160,25 @@ class FlightDetailSerializer(FlightSerializer):
 class FlightCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
-        fields = ["id", "route", "airplane", "departure_time", "arrival_time", "crew"]
+        fields = [
+            "id", "route", "airplane", "departure_time", "arrival_time", "crew"
+        ]
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    flight = serializers.SerializerMethodField()
+    flight = serializers.PrimaryKeyRelatedField(
+        queryset=Flight.objects.all(), write_only=True
+    )
+    flight_representation = serializers.SerializerMethodField()
+
+    def get_flight_representation(self, obj):
+        return str(obj.flight.route.route)
 
     def validate(self, attrs):
         data = super(TicketSerializer, self).validate(attrs)
+        flight = attrs.get("flight", None)
+        if flight is None:
+            raise serializers.ValidationError("Flight field is required.")
         Ticket.validate_ticket(
             attrs["row"],
             attrs["flight"].airplane.rows,
@@ -160,12 +188,9 @@ class TicketSerializer(serializers.ModelSerializer):
         )
         return data
 
-    def get_flight(self, obj):
-        return str(obj.flight.route.route)
-
     class Meta:
         model = Ticket
-        fields = ("id", "row", "seat", "flight")
+        fields = ("id", "row", "seat", "flight", "flight_representation")
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -191,4 +216,3 @@ class OrderSerializer(serializers.ModelSerializer):
         representation["created_at"] = created_at_representation
 
         return representation
-

@@ -43,6 +43,7 @@ class AirportViewSet(viewsets.ModelViewSet):
 
         name = self.request.query_params.get("name")
         closest_big_city = self.request.query_params.get("closest_big_city")
+        country = self.request.query_params.get("country")
 
         if name:
             queryset = queryset.filter(name__icontains=name)
@@ -50,6 +51,8 @@ class AirportViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 closest_big_city__icontains=closest_big_city
             )
+        if country:
+            queryset = queryset.filter(country__icontains=country)
 
         return queryset.distinct()
 
@@ -65,6 +68,13 @@ class AirportViewSet(viewsets.ModelViewSet):
                 type=OpenApiTypes.STR,
                 description=(
                     "Filter by closest big city (ex. ?closest_big_city=Kyiv)"
+                ),
+            ),
+            OpenApiParameter(
+                "country",
+                type=OpenApiTypes.STR,
+                description=(
+                    "Filter by country (ex. ?country=China)"
                 ),
             ),
         ]
