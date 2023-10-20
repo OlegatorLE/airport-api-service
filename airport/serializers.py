@@ -122,19 +122,28 @@ class TicketSerializer(serializers.ModelSerializer):
         slug_field="id", queryset=Flight.objects.all()
     )
 
+    def validate(self, attrs):
+        data = super(TicketSerializer, self).validate(attrs)
+        Ticket.validate_ticket(
+            attrs["row"],
+            attrs["flight"].airplane.rows,
+            attrs["seat"],
+            attrs["flight"].airplane.seats_in_row,
+            serializers.ValidationError
+        )
+        return data
+
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "flight")
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    # user = serializers.SlugRelatedField(slug_field="email", read_only=True)
-    ticket = serializers.SerializerMethodField()
-    tickets = TicketSerializer(many=True)
+    tickets = TicketSerializer(many=True, allow_empty=False)
 
     class Meta:
         model = Order
-        fields = ("id", "ticket", "created_at", "tickets")
+        fields = ("id", "created_at", "tickets")
 
     def create(self, validated_data):
         tickets_data = validated_data.pop("tickets")
@@ -142,9 +151,3 @@ class OrderSerializer(serializers.ModelSerializer):
         for ticket_data in tickets_data:
             Ticket.objects.create(order=order, **ticket_data)
         return order
-
-    def get_ticket(self, obj) -> list:
-        return [
-            f"Row {ticket.row}, Seat {ticket.seat}"
-            for ticket in obj.tickets.all()
-        ]

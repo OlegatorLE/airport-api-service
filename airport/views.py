@@ -127,11 +127,6 @@ class CustomAPIRootView(APIView):
                             request=request,
                             format=format,
                         ),
-                        "tickets": reverse(
-                            "airport:ticket-list",
-                            request=request,
-                            format=format,
-                        ),
                     },
                     "User-API": {
                         "user_register": reverse(

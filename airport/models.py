@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from rest_framework.exceptions import ValidationError
 
 
 class Airport(models.Model):
@@ -95,5 +96,45 @@ class Ticket(models.Model):
         Order, on_delete=models.CASCADE, related_name="tickets"
     )
 
+    @staticmethod
+    def validate_ticket(row, rows, seat, seats_in_row, error_to_raise):
+        if not (1 <= row <= rows):
+            raise error_to_raise(
+                {
+                    "row": f"Row #{row} must be in range (1, {rows}))"
+                }
+            )
+        if not (1 <= seat <= seats_in_row):
+            raise error_to_raise(
+                {
+                    "seat": f"Seat #{seat} must be in range (1, {seats_in_row}))"
+                }
+            )
+
+    def clean(self):
+        Ticket.validate_ticket(
+            self.row,
+            self.flight.airplane.rows,
+            self.seat,
+            self.flight.airplane.seats_in_row,
+            ValidationError,
+        )
+
+    def save(
+        self,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
+    ):
+        self.full_clean()
+        return super(Ticket, self).save(
+            force_insert, force_update, using, update_fields
+        )
+
     def __str__(self) -> str:
         return f"{self.flight} (row:{self.row}, seat:{self.seat}"
+
+    class Meta:
+        unique_together = ("flight", "row", "seat")
+        ordering = ["row", "seat"]
