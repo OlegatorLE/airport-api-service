@@ -17,8 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from airport.views import CustomAPIRootView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('api/', CustomAPIRootView.as_view(), name='api-root'),
     path("api/airport/", include("airport.urls", namespace="airport")),
     path("api/user/", include("user.urls", namespace="user")),
 ]
