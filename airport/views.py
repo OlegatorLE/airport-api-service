@@ -84,10 +84,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
-
-class TicketViewSet(viewsets.ModelViewSet):
-    queryset = Ticket.objects.all()
-    serializer_class = TicketSerializer
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class CustomAPIRootView(APIView):

@@ -118,12 +118,12 @@ class FlightDetailSerializer(FlightSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(slug_field="email", read_only=True)
+    # user = serializers.SlugRelatedField(slug_field="email", read_only=True)
     tickets = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ("id", "tickets", "created_at", "user")
+        fields = ("id", "tickets", "created_at")
 
     def get_tickets(self, obj) -> list:
         return [
