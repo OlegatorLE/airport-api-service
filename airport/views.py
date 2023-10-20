@@ -1,5 +1,8 @@
 from django.db.models import F, Count
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 
 from .models import (
     Airport,
@@ -85,3 +88,67 @@ class OrderViewSet(viewsets.ModelViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+
+
+class CustomAPIRootView(APIView):
+
+    def get(self, request, format=None):
+        if request.user.is_authenticated:
+            return Response({
+                "airports": reverse(
+                    "airport:airport-list", request=request, format=format
+                ),
+                "routes": reverse(
+                    "airport:route-list", request=request, format=format
+                ),
+                "airplane_types": reverse(
+                    "airport:airplanetype-list",
+                    request=request,
+                    format=format
+                ),
+                "airplanes": reverse(
+                    "airport:airplane-list", request=request, format=format
+                ),
+                "crews": reverse(
+                    "airport:crew-list", request=request, format=format
+                ),
+                "flights": reverse(
+                    "airport:flight-list", request=request, format=format
+                ),
+                "orders": reverse(
+                    "airport:order-list", request=request, format=format
+                ),
+                "tickets": reverse(
+                    "airport:ticket-list", request=request, format=format
+                ),
+                "user_register": reverse(
+                    "user:create", request=request, format=format
+                ),
+                "token_obtain_pair": reverse(
+                    "user:token_obtain_pair", request=request, format=format
+                ),
+                "token_refresh": reverse(
+                    "user:token_refresh", request=request, format=format
+                ),
+                "token_verify": reverse(
+                    "user:token_verify", request=request, format=format
+                ),
+                "manage_user": reverse(
+                    "user:manage", request=request, format=format
+                ),
+            })
+        else:
+            return Response({
+                "user_register": reverse(
+                    "user:create", request=request, format=format
+                ),
+                "token_obtain_pair": reverse(
+                    "user:token_obtain_pair", request=request, format=format
+                ),
+                "token_refresh": reverse(
+                    "user:token_refresh", request=request, format=format
+                ),
+                "token_verify": reverse(
+                    "user:token_verify", request=request, format=format
+                ),
+            })
