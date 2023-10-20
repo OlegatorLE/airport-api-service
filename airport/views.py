@@ -12,7 +12,6 @@ from .models import (
     Crew,
     Flight,
     Order,
-    Ticket,
 )
 from .serializers import (
     AirportSerializer,
@@ -27,7 +26,6 @@ from .serializers import (
     FlightDetailSerializer,
     FlightCreateSerializer,
     OrderSerializer,
-    TicketSerializer,
 )
 
 
