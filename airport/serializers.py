@@ -117,29 +117,34 @@ class FlightDetailSerializer(FlightSerializer):
         ]
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    # user = serializers.SlugRelatedField(slug_field="email", read_only=True)
-    tickets = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Order
-        fields = ("id", "tickets", "created_at")
-
-    def get_tickets(self, obj) -> list:
-        return [
-            f"Row {ticket.row}, Seat {ticket.seat}"
-            for ticket in obj.tickets.all()
-        ]
-
-
 class TicketSerializer(serializers.ModelSerializer):
     flight = serializers.SlugRelatedField(
         slug_field="id", queryset=Flight.objects.all()
     )
-    order = serializers.SlugRelatedField(
-        slug_field="id", queryset=Order.objects.all()
-    )
 
     class Meta:
         model = Ticket
-        fields = ("id", "row", "seat", "flight", "order")
+        fields = ("id", "row", "seat", "flight")
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    # user = serializers.SlugRelatedField(slug_field="email", read_only=True)
+    ticket = serializers.SerializerMethodField()
+    tickets = TicketSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ("id", "ticket", "created_at", "tickets")
+
+    def create(self, validated_data):
+        tickets_data = validated_data.pop("tickets")
+        order = Order.objects.create(**validated_data)
+        for ticket_data in tickets_data:
+            Ticket.objects.create(order=order, **ticket_data)
+        return order
+
+    def get_ticket(self, obj) -> list:
+        return [
+            f"Row {ticket.row}, Seat {ticket.seat}"
+            for ticket in obj.tickets.all()
+        ]
