@@ -35,9 +35,16 @@ from .serializers import (
 )
 
 
+class Pagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
+    pagination_class = Pagination
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
@@ -155,12 +162,6 @@ class FlightViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class OrderPagination(PageNumberPagination):
-    page_size = 1
-    page_size_query_param = "page_size"
-    max_page_size = 100
-
-
 class OrderViewSet(viewsets.ModelViewSet):
     flight_prefetch = Prefetch(
         "tickets__flight",
@@ -172,7 +173,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated,)
-    pagination_class = OrderPagination
+    pagination_class = Pagination
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
