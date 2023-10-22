@@ -15,7 +15,6 @@ from .models import (
 
 
 class RouteSerializer(serializers.ModelSerializer):
-
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["source"] = instance.source.name
@@ -25,12 +24,7 @@ class RouteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Route
-        fields = (
-            "id",
-            "source",
-            "destination",
-            "distance"
-        )
+        fields = ("id", "source", "destination", "distance")
 
 
 class RouteSourceDestinationSerializer(serializers.ModelSerializer):
@@ -67,7 +61,7 @@ class AirportDetailSerializer(AirportSerializer):
             "name",
             "closest_big_city",
             "departure_routes",
-            "arrival_routes"
+            "arrival_routes",
         ]
 
 
@@ -108,7 +102,14 @@ class CrewSerializer(serializers.ModelSerializer):
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
+        fields = (
+            "id",
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+            "crew",
+        )
 
 
 class FlightListSerializer(serializers.ModelSerializer):
@@ -183,7 +184,12 @@ class FlightCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
         fields = [
-            "id", "route", "airplane", "departure_time", "arrival_time", "crew"
+            "id",
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+            "crew",
         ]
 
 
