@@ -39,7 +39,7 @@ class AirportViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
-        queryset = self.queryset
+        queryset = super().get_queryset()
         query = Q()
         name = self.request.query_params.get("name")
         closest_big_city = self.request.query_params.get("closest_big_city")
@@ -50,11 +50,19 @@ class AirportViewSet(viewsets.ModelViewSet):
             query &= Q(closest_big_city__icontains=closest_big_city)
         if country:
             query &= Q(country__icontains=country)
-        return (
+
+        queryset = (
             queryset.filter(query)
             .distinct()
             .only("name", "closest_big_city", "country")
         )
+
+        if self.action == "retrieve":
+            queryset = queryset.prefetch_related(
+                "departure_routes", "arrival_routes"
+            )
+
+        return queryset
 
 
     @extend_schema(
