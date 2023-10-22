@@ -101,15 +101,11 @@ class Ticket(models.Model):
     def validate_ticket(row, rows, seat, seats_in_row, error_to_raise):
         if not (1 <= row <= rows):
             raise error_to_raise(
-                {
-                    "row": f"Row #{row} must be in range (1, {rows}))"
-                }
+                {"row": f"Row #{row} must be in range (1, {rows}))"}
             )
         if not (1 <= seat <= seats_in_row):
             raise error_to_raise(
-                {
-                    "seat": f"Seat #{seat} must be in range (1, {seats_in_row}))"
-                }
+                {"seat": f"Seat #{seat} must be in range (1, {seats_in_row}))"}
             )
 
     def clean(self):
