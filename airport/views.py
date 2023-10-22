@@ -73,9 +73,7 @@ class AirportViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 "country",
                 type=OpenApiTypes.STR,
-                description=(
-                    "Filter by country (ex. ?country=China)"
-                ),
+                description=("Filter by country (ex. ?country=China)"),
             ),
         ]
     )
@@ -151,113 +149,44 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class CustomAPIRootView(APIView):
-    def get(self, request, format=None):
+    def get_user_api(self, request):
+        return {
+            "user_register": reverse("user:create", request=request),
+            "token_obtain_pair": reverse(
+                "user:token_obtain_pair", request=request
+            ),
+            "token_refresh": reverse("user:token_refresh", request=request),
+            "token_verify": reverse("user:token_verify", request=request),
+            "manage_user": reverse("user:manage", request=request),
+        }
+
+    def get_documentation(self, request):
+        return {
+            "schema": reverse("schema", request=request),
+            "swagger": reverse("swagger-ui", request=request),
+            "redoc": reverse("redoc", request=request),
+        }
+
+    def get_airport_api(self, request):
+        return {
+            "airports": reverse("airport:airport-list", request=request),
+            "routes": reverse("airport:route-list", request=request),
+            "airplane_types": reverse(
+                "airport:airplanetype-list", request=request
+            ),
+            "airplanes": reverse("airport:airplane-list", request=request),
+            "crews": reverse("airport:crew-list", request=request),
+            "flights": reverse("airport:flight-list", request=request),
+            "orders": reverse("airport:order-list", request=request),
+        }
+
+    def get(self, request):
+        data = {
+            "User-API": self.get_user_api(request),
+            "Documentation": self.get_documentation(request),
+        }
+
         if request.user.is_authenticated:
-            return Response(
-                {
-                    "Airport-API": {
-                        "airports": reverse(
-                            "airport:airport-list",
-                            request=request,
-                            format=format,
-                        ),
-                        "routes": reverse(
-                            "airport:route-list",
-                            request=request,
-                            format=format,
-                        ),
-                        "airplane_types": reverse(
-                            "airport:airplanetype-list",
-                            request=request,
-                            format=format,
-                        ),
-                        "airplanes": reverse(
-                            "airport:airplane-list",
-                            request=request,
-                            format=format,
-                        ),
-                        "crews": reverse(
-                            "airport:crew-list", request=request, format=format
-                        ),
-                        "flights": reverse(
-                            "airport:flight-list",
-                            request=request,
-                            format=format,
-                        ),
-                        "orders": reverse(
-                            "airport:order-list",
-                            request=request,
-                            format=format,
-                        ),
-                    },
-                    "User-API": {
-                        "user_register": reverse(
-                            "user:create", request=request, format=format
-                        ),
-                        "token_obtain_pair": reverse(
-                            "user:token_obtain_pair",
-                            request=request,
-                            format=format,
-                        ),
-                        "token_refresh": reverse(
-                            "user:token_refresh",
-                            request=request,
-                            format=format,
-                        ),
-                        "token_verify": reverse(
-                            "user:token_verify", request=request, format=format
-                        ),
-                        "manage_user": reverse(
-                            "user:manage", request=request, format=format
-                        ),
-                    },
-                    "Documentation": {
-                        "schema": reverse(
-                            "schema", request=request, format=format
-                        ),
-                        "swagger": reverse(
-                            "swagger-ui", request=request, format=format
-                        ),
-                        "redoc": reverse(
-                            "redoc", request=request, format=format
-                        ),
-                    },
-                }
-            )
-        else:
-            return Response(
-                {
-                    "User-API": {
-                        "user_register": reverse(
-                            "user:create", request=request, format=format
-                        ),
-                        "token_obtain_pair": reverse(
-                            "user:token_obtain_pair",
-                            request=request,
-                            format=format,
-                        ),
-                        "token_refresh": reverse(
-                            "user:token_refresh",
-                            request=request,
-                            format=format,
-                        ),
-                        "token_verify": reverse(
-                            "user:token_verify", request=request, format=format
-                        ),
-                        "manage_user": reverse(
-                            "user:manage", request=request, format=format
-                        ),
-                    },
-                    "Documentation": {
-                        "schema": reverse(
-                            "schema", request=request, format=format
-                        ),
-                        "swagger": reverse(
-                            "swagger-ui", request=request, format=format
-                        ),
-                        "redoc": reverse(
-                            "redoc", request=request, format=format
-                        ),
-                    },
-                }
-            )
+            data["Airport-API"] = self.get_airport_api(request)
+
+        return Response(data)
