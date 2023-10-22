@@ -1,4 +1,4 @@
-from django.db.models import F, Count, Q
+from django.db.models import F, Count, Q, Prefetch
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -54,16 +54,17 @@ class AirportViewSet(viewsets.ModelViewSet):
         queryset = (
             queryset.filter(query)
             .distinct()
-            .only("name", "closest_big_city", "country")
         )
 
         if self.action == "retrieve":
+            departure_routes = Route.objects.select_related("source", "destination")
+            arrival_routes = Route.objects.select_related("source", "destination")
+       
             queryset = queryset.prefetch_related(
-                "departure_routes", "arrival_routes"
-            )
-
+                Prefetch("departure_routes", queryset=departure_routes),
+                Prefetch("arrival_routes", queryset=arrival_routes),
+           )
         return queryset
-
 
     @extend_schema(
         parameters=[
@@ -95,7 +96,7 @@ class AirportViewSet(viewsets.ModelViewSet):
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.all()
+    queryset = Route.objects.select_related("source", "destination")
     serializer_class = RouteSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 

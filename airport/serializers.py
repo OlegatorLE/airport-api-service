@@ -14,19 +14,31 @@ from .models import (
 
 
 class RouteSerializer(serializers.ModelSerializer):
-    source = serializers.PrimaryKeyRelatedField(
-        queryset=Airport.objects.all().order_by("name")
+    source_name = serializers.StringRelatedField(
+        source="source", read_only=True
     )
-    destination = serializers.PrimaryKeyRelatedField(
-        queryset=Airport.objects.all().order_by("name")
+    destination_name = serializers.StringRelatedField(
+        source="destination", read_only=True
     )
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation["source"] = instance.source.name
-        representation["destination"] = instance.destination.name
         representation["distance"] = f"{instance.distance} km."
         return representation
+
+    class Meta:
+        model = Route
+        fields = (
+            "id",
+            "source_name",
+            "destination_name",
+            "distance"
+        )
+
+
+class RouteSourceDestinationSerializer(serializers.ModelSerializer):
+    source = serializers.StringRelatedField()
+    destination = serializers.StringRelatedField()
 
     class Meta:
         model = Route
@@ -44,11 +56,11 @@ class AirportListSerializer(AirportSerializer):
 
 
 class AirportDetailSerializer(AirportSerializer):
-    departure_routes = RouteSerializer(
-        source="source_routes", many=True, read_only=True
+    departure_routes = RouteSourceDestinationSerializer(
+        many=True, read_only=True
     )
-    arrival_routes = RouteSerializer(
-        source="destination_routes", many=True, read_only=True
+    arrival_routes = RouteSourceDestinationSerializer(
+        many=True, read_only=True
     )
 
     class Meta:
