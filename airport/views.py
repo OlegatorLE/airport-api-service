@@ -1,11 +1,12 @@
 from django.db.models import F, Count, Q, Prefetch
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
 from .models import (
     Airport,
@@ -59,7 +60,7 @@ class AirportViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             departure_routes = Route.objects.select_related("source", "destination")
             arrival_routes = Route.objects.select_related("source", "destination")
-       
+
             queryset = queryset.prefetch_related(
                 Prefetch("departure_routes", queryset=departure_routes),
                 Prefetch("arrival_routes", queryset=arrival_routes),
@@ -120,21 +121,11 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 
 class FlightViewSet(viewsets.ModelViewSet):
-    queryset = Flight.objects.all()
+    queryset = Flight.objects.select_related(
+        "route", "airplane", "route__source", "route__destination",
+    ).prefetch_related("crew", "tickets")
     serializer_class = FlightSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
-
-    def get_queryset(self):
-        queryset = self.queryset
-        if self.action == "list":
-            queryset = (
-                queryset.select_related("airplane").annotate(
-                    tickets_available=F("airplane__rows")
-                    * F("airplane__seats_in_row")
-                    - Count("tickets")
-                )
-            ).order_by("id")
-        return queryset
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -144,6 +135,19 @@ class FlightViewSet(viewsets.ModelViewSet):
         if self.action == "create":
             return FlightCreateSerializer
         return self.serializer_class
+
+    def get_queryset(self):
+        queryset = self.queryset
+        if self.action == "list":
+            queryset = (
+                queryset
+                .annotate(
+                    tickets_available=F("airplane__rows")
+                    * F("airplane__seats_in_row")
+                    - Count("tickets")
+                )
+            )
+        return queryset
 
 
 class OrderViewSet(viewsets.ModelViewSet):

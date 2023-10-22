@@ -14,15 +14,11 @@ from .models import (
 
 
 class RouteSerializer(serializers.ModelSerializer):
-    source_name = serializers.StringRelatedField(
-        source="source", read_only=True
-    )
-    destination_name = serializers.StringRelatedField(
-        source="destination", read_only=True
-    )
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        representation["source"] = instance.source.name
+        representation["destination"] = instance.destination.name
         representation["distance"] = f"{instance.distance} km."
         return representation
 
@@ -30,8 +26,8 @@ class RouteSerializer(serializers.ModelSerializer):
         model = Route
         fields = (
             "id",
-            "source_name",
-            "destination_name",
+            "source",
+            "destination",
             "distance"
         )
 
@@ -111,12 +107,12 @@ class CrewSerializer(serializers.ModelSerializer):
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time")
+        fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
 
 
-class FlightListSerializer(FlightSerializer):
-    route = serializers.CharField(source="route.route")
-    airplane = serializers.CharField(source="airplane.name")
+class FlightListSerializer(serializers.ModelSerializer):
+    route = serializers.StringRelatedField()
+    airplane = serializers.StringRelatedField()
     tickets_available = serializers.IntegerField(read_only=True)
     crew = serializers.PrimaryKeyRelatedField(
         queryset=Crew.objects.all(), many=True, required=False
@@ -175,6 +171,9 @@ class FlightDetailSerializer(FlightSerializer):
 
 
 class FlightCreateSerializer(serializers.ModelSerializer):
+    airplane = serializers.PrimaryKeyRelatedField(queryset=Airplane.objects.all())
+    route = serializers.PrimaryKeyRelatedField(queryset=Route.objects.select_related("source", "destination"))
+
     class Meta:
         model = Flight
         fields = [
