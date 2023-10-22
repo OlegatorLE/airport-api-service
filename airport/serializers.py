@@ -148,9 +148,10 @@ class FlightListSerializer(serializers.ModelSerializer):
         )
 
 
-class FlightDetailSerializer(FlightSerializer):
+class FlightDetailSerializer(FlightListSerializer):
     airplane = AirplaneSerializer(read_only=True)
     taken_seats = serializers.SerializerMethodField()
+    route = serializers.StringRelatedField(source="route.route")
 
     class Meta:
         model = Flight
@@ -171,8 +172,12 @@ class FlightDetailSerializer(FlightSerializer):
 
 
 class FlightCreateSerializer(serializers.ModelSerializer):
-    airplane = serializers.PrimaryKeyRelatedField(queryset=Airplane.objects.all())
-    route = serializers.PrimaryKeyRelatedField(queryset=Route.objects.select_related("source", "destination"))
+    airplane = serializers.PrimaryKeyRelatedField(
+        queryset=Airplane.objects.all()
+    )
+    route = serializers.PrimaryKeyRelatedField(
+        queryset=Route.objects.select_related("source", "destination")
+    )
 
     class Meta:
         model = Flight

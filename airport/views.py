@@ -132,7 +132,7 @@ class FlightViewSet(viewsets.ModelViewSet):
             return FlightListSerializer
         if self.action == "retrieve":
             return FlightDetailSerializer
-        if self.action == "create":
+        if self.action == "create" or self.action == "update":
             return FlightCreateSerializer
         return self.serializer_class
 
