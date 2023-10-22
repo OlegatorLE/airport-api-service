@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -190,9 +191,9 @@ class TicketSerializer(serializers.ModelSerializer):
     flight = serializers.PrimaryKeyRelatedField(
         queryset=Flight.objects.all(), write_only=True
     )
-    flight_representation = serializers.SerializerMethodField()
+    route = serializers.SerializerMethodField()
 
-    def get_flight_representation(self, obj):
+    def get_route(self, obj):
         return str(obj.flight.route.route)
 
     def validate(self, attrs):
@@ -211,7 +212,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ticket
-        fields = ("id", "row", "seat", "flight", "flight_representation")
+        fields = ("id", "row", "seat", "flight", "route")
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -222,11 +223,12 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ("id", "created_at", "tickets")
 
     def create(self, validated_data):
-        tickets_data = validated_data.pop("tickets")
-        order = Order.objects.create(**validated_data)
-        for ticket_data in tickets_data:
-            Ticket.objects.create(order=order, **ticket_data)
-        return order
+        with transaction.atomic():
+            tickets_data = validated_data.pop("tickets")
+            order = Order.objects.create(**validated_data)
+            for ticket_data in tickets_data:
+                Ticket.objects.create(order=order, **ticket_data)
+            return order
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

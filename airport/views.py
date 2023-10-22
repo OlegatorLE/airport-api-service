@@ -1,12 +1,13 @@
 from django.db.models import F, Count, Q, Prefetch
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
+
 
 from .models import (
     Airport,
@@ -150,10 +151,24 @@ class FlightViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+class OrderPagination(PageNumberPagination):
+    page_size = 1
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    flight_prefetch = Prefetch(
+        "tickets__flight",
+        queryset=Flight.objects.select_related(
+            "route__source", "route__destination"
+        ),
+    )
+    queryset = Order.objects.prefetch_related(flight_prefetch)
+
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = OrderPagination
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
