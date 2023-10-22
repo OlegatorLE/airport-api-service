@@ -53,19 +53,20 @@ class AirportViewSet(viewsets.ModelViewSet):
         if country:
             query &= Q(country__icontains=country)
 
-        queryset = (
-            queryset.filter(query)
-            .distinct()
-        )
+        queryset = queryset.filter(query).distinct()
 
         if self.action == "retrieve":
-            departure_routes = Route.objects.select_related("source", "destination")
-            arrival_routes = Route.objects.select_related("source", "destination")
+            departure_routes = Route.objects.select_related(
+                "source", "destination"
+            )
+            arrival_routes = Route.objects.select_related(
+                "source", "destination"
+            )
 
             queryset = queryset.prefetch_related(
                 Prefetch("departure_routes", queryset=departure_routes),
                 Prefetch("arrival_routes", queryset=arrival_routes),
-           )
+            )
         return queryset
 
     @extend_schema(
@@ -123,7 +124,10 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.select_related(
-        "route", "airplane", "route__source", "route__destination",
+        "route",
+        "airplane",
+        "route__source",
+        "route__destination",
     ).prefetch_related("crew", "tickets")
     serializer_class = FlightSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
@@ -140,13 +144,10 @@ class FlightViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         if self.action == "list":
-            queryset = (
-                queryset
-                .annotate(
-                    tickets_available=F("airplane__rows")
-                    * F("airplane__seats_in_row")
-                    - Count("tickets")
-                )
+            queryset = queryset.annotate(
+                tickets_available=F("airplane__rows")
+                * F("airplane__seats_in_row")
+                - Count("tickets")
             )
         return queryset
 
