@@ -44,7 +44,7 @@ Python3 must be already installed
 
 ## Demo
 ### Anonymous user APIRoot endpoint:
-![anonym_api_root.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Fanonym_api_root.png)
+![anonym_api_root.png](https://monosnap.com/file/g9nSSdFdSNk1BIvvtpQStbDpmJ6pqM)
 ### Auth user APIRoot endpoint:
 ![auth_api_root.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Fauth_api_root.png)
 ### Admin Airport-list endpoint:
