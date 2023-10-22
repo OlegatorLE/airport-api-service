@@ -90,6 +90,9 @@ class AirportViewSet(viewsets.ModelViewSet):
             ),
         ]
     )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
     def get_serializer_class(self):
         if self.action == "list":
             return AirportListSerializer
