@@ -240,7 +240,7 @@ class AuthenticatedAirportTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_route_list(self):
-        route = sample_route()
+        sample_route()
 
         res = self.client.get(ROUTE_URL)
         route = Route.objects.order_by("source")
