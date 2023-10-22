@@ -1,4 +1,4 @@
-from django.db.models import F, Count
+from django.db.models import F, Count, Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
@@ -40,21 +40,22 @@ class AirportViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
-
+        query = Q()
         name = self.request.query_params.get("name")
         closest_big_city = self.request.query_params.get("closest_big_city")
         country = self.request.query_params.get("country")
-
         if name:
-            queryset = queryset.filter(name__icontains=name)
+            query &= Q(name__icontains=name)
         if closest_big_city:
-            queryset = queryset.filter(
-                closest_big_city__icontains=closest_big_city
-            )
+            query &= Q(closest_big_city__icontains=closest_big_city)
         if country:
-            queryset = queryset.filter(country__icontains=country)
+            query &= Q(country__icontains=country)
+        return (
+            queryset.filter(query)
+            .distinct()
+            .only("name", "closest_big_city", "country")
+        )
 
-        return queryset.distinct()
 
     @extend_schema(
         parameters=[
