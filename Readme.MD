@@ -44,20 +44,24 @@ Python3 must be already installed
 
 ## Demo
 ### Anonymous user APIRoot endpoint:
-![anonym_api_root.png](https://monosnap.com/file/g9nSSdFdSNk1BIvvtpQStbDpmJ6pqM)
+
+![anonym_api_root.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/anonym_api_root.png)
+
 ### Auth user APIRoot endpoint:
-![auth_api_root.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Fauth_api_root.png)
+
+![auth_api_root.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/auth_api_root.png)
+
 ### Admin Airport-list endpoint:
-![airport-list.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Fairport-list.png)
+![airport-list.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/airport-list.png)
 ### User Airport-detail endpoint:
-![airport-detial.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Fairport-detial.png)
+![airport-detial.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/airport-detial.png)
 ### User Flight-list endpoint:
-![flight-list.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Fflight-list.png)
+![flight-list.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/flight-list.png)
 ### User Flight-detail endpoint:
-![flight-detail.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Fflight-detail.png)
+![flight-detail.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/flight-detail.png)
 ### Order-list endpoint:
-![order-list.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Forder-list.png)
+![order-list.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/order-list.png)
 ### Order-detail endpoint:
-![order-detail.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Forder-detail.png)
+![order-detail.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/order-detail.png)
 ### Admin page:
-![admin-page.png](https://github.com/OlegatorLE/airport-api-service/tree/develop/demo_images%2Fadmin-page.png)
+![admin-page.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/admin-page.png)
