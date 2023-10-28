@@ -42,6 +42,10 @@ Python3 must be already installed
 - Filtering airports by name, city or country
 - Pagination airports and orders
 
+## DB Schema
+
+![db.png](https://github.com/OlegatorLE/airport-api-service/blob/develop/demo_images/db.png)
+
 ## Demo
 ### Anonymous user APIRoot endpoint:
 
