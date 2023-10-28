@@ -5,13 +5,14 @@ The project implements management of flights, planes, and crews. And the ability
 
 ## Install via GitHub
 
-Python3 must be already installed
+Python3 & Postgres must be already installed
 ```shell
     git clone https://github.com/OlegatorLE/airport-api-service.git
     cd airport-api-service
     python -m venv venv
     source venv/bin/activate # or venv\Scripts\activate in Windows
     pip install -r requirements.txt
+    create .env file by .env.sample
     python manage.py migrate
     python manage.py createsuperuser
     python manage.py runserver
